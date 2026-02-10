@@ -22,6 +22,9 @@ public class AiConfig {
         // Allow app to start without OPENAI_API_KEY; calls will fail at runtime.
         String apiKey = properties.getOpenai().getApiKey();
         if (!StringUtils.hasText(apiKey)) {
+            apiKey = System.getenv("OPENAI_API_KEY");
+        }
+        if (!StringUtils.hasText(apiKey)) {
             apiKey = "missing";
         }
 
