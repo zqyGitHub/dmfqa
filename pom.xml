@@ -22,6 +22,8 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>11</java.version>
+		<langchain4j.version>1.11.0</langchain4j.version>
+		<langchain4j.mcp.version>1.11.0-beta19</langchain4j.mcp.version>
 	</properties>
 
 	<dependencies>
@@ -32,6 +34,17 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>dev.langchain4j</groupId>
+			<artifactId>langchain4j-open-ai</artifactId>
+			<version>${langchain4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>dev.langchain4j</groupId>
+			<artifactId>langchain4j-mcp</artifactId>
+			<version>${langchain4j.mcp.version}</version>
 		</dependency>
 
 		<dependency>
