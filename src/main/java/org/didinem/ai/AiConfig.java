@@ -65,12 +65,10 @@ public class AiConfig {
         return AiServices.builder(WeatherAssistant.class)
                 .chatModel(chatModel)
                 .toolProvider(toolProvider)
-                .systemMessage("""
-                        你是一个天气助手。
-                        - 如果用户问题涉及“天气/温度/风速/下雨/穿衣”等，请优先调用工具获取实时数据。
-                        - 工具返回的 weather_code 需要用通俗中文解释（如果你不确定，直接说明是 Open-Meteo 的天气码并给出原始值）。
-                        - 回复尽量简洁、可执行（给出温度/体感/风速/时间）。
-                        """)
+                .systemMessage("你是一个天气助手。\n"
+                        + "- 如果用户问题涉及“天气/温度/风速/下雨/穿衣”等，请优先调用工具获取实时数据。\n"
+                        + "- 工具返回的 weather_code 需要用通俗中文解释（如果你不确定，直接说明是 Open-Meteo 的天气码并给出原始值）。\n"
+                        + "- 回复尽量简洁、可执行（给出温度/体感/风速/时间）。\n")
                 .build();
     }
 }
