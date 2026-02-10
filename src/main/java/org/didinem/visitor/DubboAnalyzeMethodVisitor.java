@@ -1,17 +1,18 @@
 package org.didinem.visitor;
 
-import com.google.common.collect.Lists;
 import org.apache.commons.collections4.CollectionUtils;
 import org.didinem.handle.CacheHandler;
 import org.didinem.util.keygen.RedisKeyGenerater;
-import org.objectweb.asm.commons.EmptyVisitor;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by didinem on 3/4/2017.
  */
-public class DubboAnalyzeMethodVisitor extends EmptyVisitor {
+public class DubboAnalyzeMethodVisitor extends MethodVisitor {
 
     private String currentMethodKey;
 
@@ -20,18 +21,26 @@ public class DubboAnalyzeMethodVisitor extends EmptyVisitor {
     private CacheHandler cacheHandler;
 
     public DubboAnalyzeMethodVisitor(String currentMethodKey) {
+        super(Opcodes.ASM9);
         this.currentMethodKey = currentMethodKey;
     }
 
     public DubboAnalyzeMethodVisitor(String currentMethodKey, boolean isInterface) {
+        super(Opcodes.ASM9);
         this.currentMethodKey = currentMethodKey;
         this.isInterface = isInterface;
+    }
+
+    public DubboAnalyzeMethodVisitor(String currentMethodKey, CacheHandler cacheHandler) {
+        super(Opcodes.ASM9);
+        this.currentMethodKey = currentMethodKey;
+        this.cacheHandler = cacheHandler;
     }
 
     /**
      * 直接依赖的方法
      */
-    private List<String> dependentMethodList = Lists.newArrayList();
+    private List<String> dependentMethodList = new ArrayList<>();
 
     public String getCurrentMethodKey() {
         return currentMethodKey;
@@ -56,7 +65,6 @@ public class DubboAnalyzeMethodVisitor extends EmptyVisitor {
      * @param s1 the method's name.
      * @param s2 the method's descriptor (see Type).
      */
-    @Override
     public void visitMethodInsn(int i, String s, String s1, String s2) {
         // FIXME 责任链
         if (isLvmama(s)) {
@@ -73,6 +81,13 @@ public class DubboAnalyzeMethodVisitor extends EmptyVisitor {
         }
     }
 
+    @Override
+    public void visitMethodInsn(int opcode, String owner, String name, String descriptor, boolean isInterface) {
+        // 兼容 ASM5+ 的签名
+        this.isInterface = isInterface;
+        visitMethodInsn(opcode, owner, name, descriptor);
+        super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
+    }
 
     @Override
     public void visitEnd() {

@@ -2,6 +2,7 @@ package org.didinem.sconf.redis;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
@@ -13,11 +14,10 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 public class RedisConfig {
 
     @Bean("lettuceConnectionFactory")
-    public LettuceConnectionFactory getLettuceConnectionFactory() {
-        String host = "192.168.50.119";
-        int port = 6379;
-        LettuceConnectionFactory lettuceConnectionFactory = new LettuceConnectionFactory(host, port);
-        return lettuceConnectionFactory;
+    public LettuceConnectionFactory getLettuceConnectionFactory(Environment environment) {
+        String host = environment.getProperty("spring.redis.host", "localhost");
+        int port = Integer.parseInt(environment.getProperty("spring.redis.port", "6379"));
+        return new LettuceConnectionFactory(host, port);
     }
 
     @Bean("redisTemplate")

@@ -3,8 +3,9 @@ package org.didinem.visitor;
 import org.apache.commons.lang3.ArrayUtils;
 import org.didinem.handle.CacheHandler;
 import org.didinem.util.keygen.RedisKeyGenerater;
+import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.commons.EmptyVisitor;
+import org.objectweb.asm.Opcodes;
 
 import java.util.List;
 
@@ -12,7 +13,7 @@ import java.util.List;
  * 扫描Class信息，收集方法信息用以分析方法依赖关系
  * Created by didinem on 3/4/2017.
  */
-public class DubboAnalyzeClassVisitor extends EmptyVisitor {
+public class DubboAnalyzeClassVisitor extends ClassVisitor {
 
     private CacheHandler cacheHandler;
 
@@ -21,6 +22,12 @@ public class DubboAnalyzeClassVisitor extends EmptyVisitor {
     private List<String> ignoreMethodList;
 
     private MethodVisitor methodVisitor;
+
+    public DubboAnalyzeClassVisitor(CacheHandler cacheHandler, List<String> ignoreMethodList) {
+        super(Opcodes.ASM9);
+        this.cacheHandler = cacheHandler;
+        this.ignoreMethodList = ignoreMethodList;
+    }
 
     /**
      * @param i version - the class version.
@@ -34,6 +41,7 @@ public class DubboAnalyzeClassVisitor extends EmptyVisitor {
     @Override
 
     public void visit(int i, int i1, String s, String s1, String s2, String[] strings) {
+        super.visit(i, i1, s, s1, s2, strings);
         classInternalName = s;
         // 接口与实现类
         if (ArrayUtils.isNotEmpty(strings)) {
@@ -60,11 +68,15 @@ public class DubboAnalyzeClassVisitor extends EmptyVisitor {
             return super.visitMethod(i, s, s1, s2, strings);
         }
 
+        if (ignoreMethodList != null && ignoreMethodList.contains(s)) {
+            return super.visitMethod(i, s, s1, s2, strings);
+        }
+
         String methodKey = RedisKeyGenerater.generateMethodKey(classInternalName, s, s1);
 
         System.out.println("opcode:" + i + ", and method key:" + methodKey + "value:" + i);
         cacheHandler.set(methodKey, String.valueOf(i));
-        return new DubboAnalyzeMethodVisitor(methodKey);
+        return new DubboAnalyzeMethodVisitor(methodKey, cacheHandler);
     }
 
 
